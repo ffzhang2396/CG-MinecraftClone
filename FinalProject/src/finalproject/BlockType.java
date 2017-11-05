@@ -1,0 +1,8 @@
+package finalproject;
+
+/**
+ *
+ */
+class BlockType {
+
+}
