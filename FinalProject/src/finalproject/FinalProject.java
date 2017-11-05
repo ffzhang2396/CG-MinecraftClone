@@ -58,6 +58,7 @@ public class FinalProject {
 
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        glEnable(GL_DEPTH_TEST); // so planes do not overlap when looking at them
     }
 
     private void render() {
