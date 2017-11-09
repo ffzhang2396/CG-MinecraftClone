@@ -11,9 +11,9 @@ import static org.lwjgl.opengl.GL11.glVertex3f;
  */
 public class Block {
 
-    private boolean isActive;
-    private BlockType type;
-    private float x, y, z;
+//    private boolean isActive;
+//    private BlockType type;
+//    private float x, y, z;
 
     public Block() {
     }
