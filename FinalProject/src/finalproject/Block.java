@@ -22,7 +22,7 @@ public class Block {
         BlockType_Dirt(3),
         BlockType_Stone(4),
         BlockType_Bedrock(5);
-        
+
         private int blockID;
 
         BlockType(int i) {
@@ -36,6 +36,10 @@ public class Block {
         public void setID(int i) {
             this.blockID = i;
         }
+
+        public static BlockType getRandom() {
+            return values()[(int) (Math.random() * values().length)];
+        }
     }
 
     public Block(BlockType type) {
@@ -47,16 +51,16 @@ public class Block {
         this.y = y;
         this.z = z;
     }
-    
-    public boolean isActive(){
+
+    public boolean isActive() {
         return this.isActive;
     }
-    
-    public void setActive(boolean active){
+
+    public void setActive(boolean active) {
         this.isActive = active;
     }
-    
-    public int getID(){
+
+    public int getID() {
         return this.type.getID();
     }
 

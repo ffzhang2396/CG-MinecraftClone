@@ -48,7 +48,7 @@ public class FinalProject {
      * the origin at the center of the window.
      */
     private void initGL() {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.5f, 0.8f, .97f, 0f);
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -57,7 +57,7 @@ public class FinalProject {
 
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        glEnable(GL_DEPTH_TEST); // so planes do not overlap when looking at them
+        glEnable(GL_DEPTH_TEST);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnable(GL_TEXTURE_2D);

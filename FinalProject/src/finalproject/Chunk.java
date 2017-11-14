@@ -25,24 +25,15 @@ public class Chunk {
         try {
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
         } catch (Exception e) {
-            System.out.print("ER-ROAR!");
+            System.out.print("e-REEEEEEEEEEEEEEEEEEEEEE-r!");
         }
         r = new Random();
-        float randFloat;
+
         blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 for (int z = 0; z < CHUNK_SIZE; z++) {
-                    randFloat = r.nextFloat();
-                    if (randFloat > 0.7f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
-                    } else if (randFloat > 0.4f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
-                    } else if (randFloat > 0.2f) {
-                        blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
-                    } else {
-                        blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
-                    }
+                    blocks[x][y][z] = new Block(Block.BlockType.getRandom());
                 }
             }
         }
@@ -52,11 +43,11 @@ public class Chunk {
         this.startX = startX;
         this.startY = startY;
         this.startZ = startZ;
-        rebuildMesh(this.startX, this.startY, this.startZ);
+        rebuildMesh(startX, startY, startZ);
     }
 
     public void render() {
-        // glPushMatrix();
+        glPushMatrix();
         glPushMatrix();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);
@@ -70,8 +61,7 @@ public class Chunk {
     }
 
     public void rebuildMesh(float startX, float startY, float startZ) {
-        SimplexNoise noise = new SimplexNoise(100, r.nextDouble() * .25, 227);
-        int i, j, k;
+        SimplexNoise noise = new SimplexNoise(100, r.nextDouble() * .3, 27);
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
         vboTextureHandle = glGenBuffers();
@@ -82,15 +72,14 @@ public class Chunk {
         for (float x = 0; x < CHUNK_SIZE; x += 1) {
             for (float z = 0; z < CHUNK_SIZE; z += 1) {
                 for (float y = 0; y < CHUNK_SIZE; y += 1) {
-                    i = (int) (startX + x * ((CHUNK_SIZE - startX) / 200));
-                    j = (int) (startY + y * ((CHUNK_SIZE - startY) / 200));
-                    k = (int) (startZ + z * ((CHUNK_SIZE - startZ) / 200));
-
-                    VertexPositionData.put(createCube((float) (startX + x * CUBE_LENGTH),
-                            (float) (startY + (int) (100 * noise.getNoise(i, j, k)) * CUBE_LENGTH),//(float) (y * CUBE_LENGTH + (int) (CHUNK_SIZE * .8)),
-                            (float) (startZ + z * CUBE_LENGTH)));
+                    VertexPositionData.put(createCube(
+                            (float) (startX + x * CUBE_LENGTH),
+                            //(float)(startY+y*CUBE_LENGTH+(int)(CHUNK_SIZE*.8)),
+                            (float) (startY + (int) (100 * noise.getNoise((int) x, (int) y, (int) z)) * CUBE_LENGTH),
+                            (float) (startZ + z * CUBE_LENGTH))
+                    );
                     VertexColorData.put(createCubeVertexCol(getCubeColor()));
-                    VertexTextureData.put(createTexCube((float) 0, (float) 0, blocks[(int) (x)][(int) (y)][(int) (z)]));
+                    VertexTextureData.put(createTexCube(0f, 0f, blocks[(int) (x)][(int) (y)][(int) (z)]));
                 }
             }
         }
@@ -109,6 +98,12 @@ public class Chunk {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    /**
+     * Stores cube color data in a vbo to be drawn when render is called.
+     *
+     * @param cubeColorArray array of RGB values (1, 1, 1)
+     * @return cube colors
+     */
     private float[] createCubeVertexCol(float[] cubeColorArray) {
         float[] cubeColors = new float[cubeColorArray.length * 4 * 6];
         for (int i = 0; i < cubeColors.length; i++) {
@@ -117,6 +112,14 @@ public class Chunk {
         return cubeColors;
     }
 
+    /**
+     * Creates coordinates of each cube to be stored within the vbo.
+     *
+     * @param x start x value
+     * @param y start y value
+     * @param z start z value
+     * @return coordinates for creation of the cube
+     */
     public static float[] createCube(float x, float y, float z) {
         int offset = CUBE_LENGTH / 2;
         return new float[]{
@@ -158,9 +161,9 @@ public class Chunk {
      * is needed. The origin on the texture sheet (0px, 0px) is the top-left
      * corner of the texture sheet.
      *
-     * @param x will be 0
-     * @param y will be 0
-     * @param block inside the chunk
+     * @param x the xStart
+     * @param y the yStart
+     * @param block located inside the chunk
      * @return float containing coordinates for texture sheet
      */
     public static float[] createTexCube(float x, float y, Block block) {
@@ -199,169 +202,61 @@ public class Chunk {
                     x + offset * 4, y + offset * 1,
                     x + offset * 3, y + offset * 1};
             case 1:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // TOP!
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // FRONT QUAD
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // BACK QUAD
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // LEFT QUAD
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // RIGHT QUAD
-                    x + offset * 3, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1};
+                return getTexCubeCoord(x, y, offset, 3, 2, 2, 1);
             case 2:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13,
-                    // TOP!
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13,
-                    // FRONT QUAD
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13,
-                    // BACK QUAD
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13,
-                    // LEFT QUAD
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13,
-                    // RIGHT QUAD
-                    x + offset * 16, y + offset * 12,
-                    x + offset * 15, y + offset * 12,
-                    x + offset * 15, y + offset * 13,
-                    x + offset * 16, y + offset * 13};
+                return getTexCubeCoord(x, y, offset, 16, 15, 12, 13);
             case 3:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // TOP!
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // FRONT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // BACK QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // LEFT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // RIGHT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 3, y + offset * 1};
+                return getTexCubeCoord(x, y, offset, 3, 2, 0, 1);
             case 4:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    // TOP!
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    // FRONT QUAD
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    // BACK QUAD
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    // LEFT QUAD
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    // RIGHT QUAD
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 1, y + offset * 0,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 2, y + offset * 1};
+                return getTexCubeCoord(x, y, offset, 2, 1, 0, 1);
             case 5:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    // TOP!
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    // FRONT QUAD
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    // BACK QUAD
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    // LEFT QUAD
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2,
-                    // RIGHT QUAD
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 1, y + offset * 1,
-                    x + offset * 1, y + offset * 2,
-                    x + offset * 2, y + offset * 2};
+                return getTexCubeCoord(x, y, offset, 2, 1, 1, 2);
         }
         return null;
     }
 
+    /**
+     * Method to retrieve simpler textures from terrain.png
+     */
+    private static float[] getTexCubeCoord(float x, float y, float offset, int m1, int m2, int m3, int m4) {
+        return new float[]{
+            // BOTTOM QUAD(DOWN=+Y)
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,
+            // TOP!
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,
+            // FRONT QUAD
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,
+            // BACK QUAD
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,
+            // LEFT QUAD
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,
+            // RIGHT QUAD
+            x + offset * m1, y + offset * m3,
+            x + offset * m2, y + offset * m3,
+            x + offset * m2, y + offset * m4,
+            x + offset * m1, y + offset * m4,};
+    }
+
+    /**
+     * Gives color to each cube texture
+     *
+     * @return RGB value to show all 3 colors
+     */
     private float[] getCubeColor() {
         return new float[]{1, 1, 1};
     }
