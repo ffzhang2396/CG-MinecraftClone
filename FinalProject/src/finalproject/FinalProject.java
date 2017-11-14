@@ -1,7 +1,5 @@
 package finalproject;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
@@ -9,7 +7,7 @@ import org.lwjgl.util.glu.GLU;
 
 public class FinalProject {
 
-    private CameraController camera = new CameraController(0, 0, 0);
+    private CameraController camera;
     private DisplayMode displayMode;
 
     /**
@@ -19,7 +17,8 @@ public class FinalProject {
         try {
             createWindow();
             initGL();
-            loop(); //render() is inside gameLoop()
+            camera = new CameraController(0, 0, 0);
+            camera.loop(); //render() is inside gameLoop()
         } catch (Exception e) {
         }
     }
@@ -59,56 +58,10 @@ public class FinalProject {
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glEnable(GL_DEPTH_TEST); // so planes do not overlap when looking at them
-    }
-
-    private void render() {
-        try {
-            Block b = new Block();
-            b.drawBlock();
-        } catch (Exception e) {
-        }
-    }
-
-    public void loop() {
-        float dx, dy;
-        float mouseSens = 0.09f;
-        float movementSpeed = .35f;
-        Mouse.setGrabbed(true); // hides mouse
-
-        while (!Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) && !Display.isCloseRequested()) {
-            dx = Mouse.getDX();
-            dy = Mouse.getDY();
-            // control camera movement from mouse
-            camera.yaw(dx * mouseSens);
-            camera.pitch(dy * mouseSens);
-            if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-                camera.walkForward(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-                camera.walkBackwards(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-                camera.strafeLeft(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-                camera.strafeRight(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                camera.moveUp(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                camera.moveDown(movementSpeed);
-            }
-            glLoadIdentity();
-            camera.lookThrough();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            render();
-
-            Display.update();
-            Display.sync(60);
-        }
-        Display.destroy();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
     public static void main(String[] args) {
