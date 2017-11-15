@@ -1,33 +1,51 @@
 package finalproject;
 
+/***************************************************************
+* file: FinalProject.java
+* authors: Kristin Adachi
+*          Je'Don Roc Carter
+*          Calvin Teng
+*          Felix Zhang
+*          Oscar Zhang
+* class: CS 445 – Computer Graphics
+*
+* assignment: Final Program
+* date last modified: 11/15/2017
+*
+* purpose: This program uses the LWJGL library to create a window of 
+*          size 640x480. Within this window, we were required to create 
+*          a small 3D world similar to that of the popular game Minecraft. 
+*          We needed to implement a camera as well as render the 3D world 
+*          itself by using OpenGL.
+*
+****************************************************************/ 
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
 
 public class FinalProject {
-
     private CameraController camera;
     private DisplayMode displayMode;
 
-    /**
-     * Method used to start program.
-     */
+    //method: start
+    //purpose: Creates and initializes the window and the camera. The render 
+    //         method is called within the camera's loop method.
     public void start() {
         try {
             createWindow();
             initGL();
             camera = new CameraController(0, 0, 0);
-            camera.loop(); //render() is inside gameLoop()
+            camera.loop();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Method creates a window of size 640x480
-     *
-     * @throws Exception, LWJGLException
-     */
+    //method: createWindow
+    //purpose: Creates the window with initial size 640x480 along with the 
+    //         specified title.
     private void createWindow() throws Exception {
         Display.setFullscreen(false);
         DisplayMode d[] = Display.getAvailableDisplayModes();
@@ -42,11 +60,11 @@ public class FinalProject {
         Display.create();
     }
 
-    /**
-     * Method specifies the canvas background color, uses projection to view the
-     * scene, loads the identity matrix, and sets up an orthographic matrix with
-     * the origin at the center of the window.
-     */
+    //method: initGL
+    //purpose: Initializes OpenGL with specific values. It specifies the 
+    //         canvas background color, uses projection to view the scene, 
+    //         loads the identity matrix, and sets up an orthographic matrix 
+    //         with the origin at the center of the window.
     private void initGL() {
         glClearColor(0.5f, 0.8f, .97f, 0f);
 
@@ -64,6 +82,8 @@ public class FinalProject {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
+    //method: main
+    //purpose: Creates a FinalProject object and starts the program.
     public static void main(String[] args) {
         FinalProject test = new FinalProject();
         test.start();

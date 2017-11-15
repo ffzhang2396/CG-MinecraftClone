@@ -1,5 +1,24 @@
 package finalproject;
 
+/***************************************************************
+* file: Chunk.java
+* authors: Kristin Adachi
+*          Je'Don Roc Carter
+*          Calvin Teng
+*          Felix Zhang
+*          Oscar Zhang
+* class: CS 445 – Computer Graphics
+*
+* assignment: Final Program
+* date last modified: 11/15/2017
+*
+* purpose: The Chunk class essentially creates a chunk of textured blocks and 
+*          represents the world in our game. The world is 30x30 cubes large 
+*          and each cube is textured and randomly placed using simplex noise 
+*          classes.
+*
+****************************************************************/ 
+
 import java.nio.FloatBuffer;
 import java.util.Random;
 import org.lwjgl.BufferUtils;
@@ -10,17 +29,22 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 public class Chunk {
-
     static final int CHUNK_SIZE = 30;
     static final int CUBE_LENGTH = 2;
     private Block[][][] blocks;
+    private int startX, startY, startZ;
+    
     private int vboVertexHandle;
     private int vboColorHandle;
-    private int startX, startY, startZ;
-    private Random r;
     private int vboTextureHandle;
     private Texture texture;
+    
+    private Random r;
 
+    //method: Chunk
+    //purpose: Chunk constructor. Loads the textures and assigns block 
+    //         types to each block. It also calls the rebuildMesh method 
+    //         to draw the world.
     public Chunk(int startX, int startY, int startZ) {
         try {
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
@@ -46,6 +70,8 @@ public class Chunk {
         rebuildMesh(startX, startY, startZ);
     }
 
+    //method: render
+    //purpose: Renders the chunk.
     public void render() {
         glPushMatrix();
         glPushMatrix();
@@ -60,10 +86,13 @@ public class Chunk {
         glPopMatrix();
     }
 
+    //method: rebuildMesh
+    //purpose: Method responsible for generating the terrain using simplex 
+    //         noise classes. It also draws the chunk, creating our world.
     public void rebuildMesh(float startX, float startY, float startZ) {
+        //if persistence was less than 0.06, the chunk was almost flat
+        //if it was greater than 0.1, valleys and mountains were too steep
         float persistence = 0f;
-        //less than 0.06 showed almost nothing
-        //greater than 0.1 was too agressive
         while( persistence < 0.06f ){
             persistence = (0.1f) * r.nextFloat();
         }
@@ -82,6 +111,7 @@ public class Chunk {
         for (float x = 0; x < CHUNK_SIZE; x++ ) {
             for (float z = 0; z < CHUNK_SIZE; z++ ) {
                 for (float y = 0; y < CHUNK_SIZE; y++ ) {
+                    //height created using simplex noise
                     int height = (int) (startY + (int) (CHUNK_SIZE * noise.getNoise((int) x, (int) y, (int) z))*CUBE_LENGTH);
                     if( y >= height ){
                         break;
@@ -96,7 +126,6 @@ public class Chunk {
                 }
             }
         }
-
         VertexColorData.flip();
         VertexPositionData.flip();
         VertexTextureData.flip();
@@ -111,12 +140,9 @@ public class Chunk {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    /**
-     * Stores cube color data in a vbo to be drawn when render is called.
-     *
-     * @param cubeColorArray array of RGB values (1, 1, 1)
-     * @return cube colors
-     */
+    //method: createCubeVertexCol
+    //purpose: Creates an array of type float and stores the block color 
+    //         data in that array. Returns the float array.
     private float[] createCubeVertexCol(float[] cubeColorArray) {
         float[] cubeColors = new float[cubeColorArray.length * 4 * 6];
         for (int i = 0; i < cubeColors.length; i++) {
@@ -125,43 +151,39 @@ public class Chunk {
         return cubeColors;
     }
 
-    /**
-     * Creates coordinates of each cube to be stored within the vbo.
-     *
-     * @param x start x value
-     * @param y start y value
-     * @param z start z value
-     * @return coordinates for creation of the cube
-     */
+    //method: createCube
+    //purpose: Creates an array of type float. Defines the vertices of 
+    //         the block and stores these values in the array. Returns 
+    //         the float array.
     public static float[] createCube(float x, float y, float z) {
         int offset = CUBE_LENGTH / 2;
         return new float[]{
-            // TOP QUAD
+            //Top quad
             x + offset, y + offset, z,
             x - offset, y + offset, z,
             x - offset, y + offset, z - CUBE_LENGTH,
             x + offset, y + offset, z - CUBE_LENGTH,
-            // BOTTOM QUAD
+            //Bottom quad
             x + offset, y - offset, z - CUBE_LENGTH,
             x - offset, y - offset, z - CUBE_LENGTH,
             x - offset, y - offset, z,
             x + offset, y - offset, z,
-            // FRONT QUAD
+            //Front quad
             x + offset, y + offset, z - CUBE_LENGTH,
             x - offset, y + offset, z - CUBE_LENGTH,
             x - offset, y - offset, z - CUBE_LENGTH,
             x + offset, y - offset, z - CUBE_LENGTH,
-            // BACK QUAD
+            //Back quad
             x + offset, y - offset, z,
             x - offset, y - offset, z,
             x - offset, y + offset, z,
             x + offset, y + offset, z,
-            // LEFT QUAD
+            //Left Quad
             x - offset, y + offset, z - CUBE_LENGTH,
             x - offset, y + offset, z,
             x - offset, y - offset, z,
             x - offset, y - offset, z - CUBE_LENGTH,
-            // RIGHT QUAD
+            //Right Quad
             x + offset, y + offset, z,
             x + offset, y + offset, z - CUBE_LENGTH,
             x + offset, y - offset, z - CUBE_LENGTH,
@@ -169,19 +191,15 @@ public class Chunk {
         };
     }
 
-    /**
-     * Textures on texture sheet are read from 0.0 - 1.0 which is why the offset
-     * is needed. The origin on the texture sheet (0px, 0px) is the top-left
-     * corner of the texture sheet.
-     *
-     * @param x the xStart
-     * @param y the yStart
-     * @param block located inside the chunk
-     * @return float containing coordinates for texture sheet
-     */
+    //method: createTexCube
+    //purpose: Assigns textures from "terrain.png" to each side of the block. 
+    //         The texture sheet is read from 0.0 - 1.0, indicating the need 
+    //         for an offset. The origin on the texture sheet is located at 
+    //         the top left corner (0px, 0px).
     public static float[] createTexCube(float x, float y, Block block) {
         float offset = (1024f / 16) / 1024f;
         switch (block.getID()) {
+            //grass block type
             case 0:
                 return new float[]{
                     // BOTTOM QUAD(DOWN=+Y)
@@ -214,23 +232,28 @@ public class Chunk {
                     x + offset * 4, y + offset * 0,
                     x + offset * 4, y + offset * 1,
                     x + offset * 3, y + offset * 1};
+            //sand block type
             case 1:
                 return getTexCubeCoord(x, y, offset, 3, 2, 2, 1);
+            //water block type
             case 2:
                 return getTexCubeCoord(x, y, offset, 16, 15, 12, 13);
+            //dirt block type
             case 3:
                 return getTexCubeCoord(x, y, offset, 3, 2, 0, 1);
+            //stone block type
             case 4:
                 return getTexCubeCoord(x, y, offset, 2, 1, 0, 1);
+            //bedrock block type
             case 5:
                 return getTexCubeCoord(x, y, offset, 2, 1, 1, 2);
         }
         return null;
     }
 
-    /**
-     * Method to retrieve simpler textures from terrain.png
-     */
+    //method: getTexCubeCoord
+    //purpose: Helper method used to retrieve simpler textures from the 
+    //         texture file ("terrain.png").
     private static float[] getTexCubeCoord(float x, float y, float offset, int m1, int m2, int m3, int m4) {
         return new float[]{
             // BOTTOM QUAD(DOWN=+Y)
@@ -265,11 +288,9 @@ public class Chunk {
             x + offset * m1, y + offset * m4,};
     }
 
-    /**
-     * Gives color to each cube texture
-     *
-     * @return RGB value to show all 3 colors
-     */
+    //method: getCubeColor
+    //purpose: Determines color for each cube texture. Returns an array 
+    //         of type float with the 3 colors.
     private float[] getCubeColor() {
         return new float[]{1, 1, 1};
     }
