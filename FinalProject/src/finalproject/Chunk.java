@@ -61,7 +61,17 @@ public class Chunk {
     }
 
     public void rebuildMesh(float startX, float startY, float startZ) {
-        SimplexNoise noise = new SimplexNoise(100, r.nextDouble() * .3, 27);
+        float persistence = 0f;
+        //less than 0.06 showed almost nothing
+        //greater than 0.1 was too agressive
+        while( persistence < 0.06f ){
+            persistence = (0.1f) * r.nextFloat();
+        }
+        int seed = r.nextInt( 50 ) + 1;
+        System.out.println( persistence );
+        System.out.println( seed );
+        
+        SimplexNoise noise = new SimplexNoise(CHUNK_SIZE, persistence, seed);
         vboColorHandle = glGenBuffers();
         vboVertexHandle = glGenBuffers();
         vboTextureHandle = glGenBuffers();
@@ -69,14 +79,17 @@ public class Chunk {
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
 
-        for (float x = 0; x < CHUNK_SIZE; x += 1) {
-            for (float z = 0; z < CHUNK_SIZE; z += 1) {
-                for (float y = 0; y < CHUNK_SIZE; y += 1) {
+        for (float x = 0; x < CHUNK_SIZE; x++ ) {
+            for (float z = 0; z < CHUNK_SIZE; z++ ) {
+                for (float y = 0; y < CHUNK_SIZE; y++ ) {
+                    int height = (int) (startY + (int) (CHUNK_SIZE * noise.getNoise((int) x, (int) y, (int) z))*CUBE_LENGTH);
+                    if( y >= height ){
+                        break;
+                    }
                     VertexPositionData.put(createCube(
-                            (float) (startX + x * CUBE_LENGTH),
-                            //(float)(startY+y*CUBE_LENGTH+(int)(CHUNK_SIZE*.8)),
-                            (float) (startY + (int) (100 * noise.getNoise((int) x, (int) y, (int) z)) * CUBE_LENGTH),
-                            (float) (startZ + z * CUBE_LENGTH))
+                            (float) (startX + x * CUBE_LENGTH + 10),
+                            (float) (y * CUBE_LENGTH + (int) (CHUNK_SIZE * 0.8) - 60),
+                            (float) (startZ + z * CUBE_LENGTH) + 10)
                     );
                     VertexColorData.put(createCubeVertexCol(getCubeColor()));
                     VertexTextureData.put(createTexCube(0f, 0f, blocks[(int) (x)][(int) (y)][(int) (z)]));

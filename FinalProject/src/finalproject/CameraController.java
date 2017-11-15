@@ -16,9 +16,11 @@ public class CameraController {
     private float yaw = 0.0f;     //rotation around y axis of camera
     private float pitch = 0.0f;    //rotations around x axis of camera
     private Chunk chunk;
+    private boolean firstRender;
+    
     public CameraController(float x, float y, float z) {
         this.position = new Vector3f(x, y, z);
-        chunk = new Chunk((int) x, (int) y, (int) z);
+        firstRender = true;
     }
 
     // increament camera rotation around y axis
@@ -123,6 +125,10 @@ public class CameraController {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             try {
+                if( firstRender ){
+                    chunk = new Chunk( 0, 8, 0 );
+                    firstRender = false;
+                }
                 chunk.render();
             } catch (Exception e) {
             }
