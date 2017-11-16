@@ -12,25 +12,19 @@ package finalproject;
 * assignment: Final Program
 * date last modified: 11/15/2017
 *
-* purpose: The Block class is able to create 6 different types of 
-*          blocks and determines whether each block is active. This 
-*          class also displays the block in the world.
+* purpose: The Block class is used to create 6 different types of 
+*          blocks and determines whether each block is active.
+*          Coordinates for each block are stored inside a separate
+*          vertex buffer object.
 *
 ****************************************************************/ 
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3f;
 
 public class Block {
     private boolean isActive;
     private BlockType type;
     private float x, y, z;
 
-    //method: BlockType
-    //purpose: Defines the block types.
     public enum BlockType {
         BlockType_Grass(0),
         BlockType_Sand(1),
@@ -40,19 +34,27 @@ public class Block {
         BlockType_Bedrock(5);
 
         private int blockID;
-
+        
+        //method: BlockType
+        //purpose: BlockType constructor.
         BlockType(int i) {
             this.blockID = i;
         }
 
+        //method: getID
+        //purpose: To retrieve ID of block's block-type.
         public int getID() {
             return this.blockID;
         }
 
+        //method: setID
+        //purpose: To set the ID of the block's block-type.
         public void setID(int i) {
             this.blockID = i;
         }
 
+        //method: getRandom
+        //purpose: to return a random block-type
         public static BlockType getRandom() {
             return values()[(int) (Math.random() * values().length)];
         }
@@ -90,51 +92,6 @@ public class Block {
     //purpose: Returns the block's ID.
     public int getID() {
         return this.type.getID();
-    }
-
-    
-    //method: drawBlock
-    //purpose: Renders and displays the block within the window in a 
-    //         counter-clockwise fashion.
-    protected void drawBlock() {
-        glBegin(GL_QUADS);
-
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);      //Top Right Of The Quad (Top)
-        glVertex3f(-1.0f, 1.0f, -1.0f);     //Top Left Of The Quad (Top)
-        glVertex3f(-1.0f, 1.0f, 1.0f);      //Bottom Left Of The Quad (Top)
-        glVertex3f(1.0f, 1.0f, 1.0f);       //Bottom Right Of The Quad (Top)
-
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, 1.0f);      //Top Right Of The Quad (Bottom)
-        glVertex3f(-1.0f, -1.0f, 1.0f);     //Top Left Of The Quad (Bottom)
-        glVertex3f(-1.0f, -1.0f, -1.0f);    //Bottom Left Of The Quad (Bottom)
-        glVertex3f(1.0f, -1.0f, -1.0f);     //Bottom Right Of The Quad (Bottom)
-
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);       //Top Right Of The Quad (Front)
-        glVertex3f(-1.0f, 1.0f, 1.0f);      //Top Left Of The Quad (Front)
-        glVertex3f(-1.0f, -1.0f, 1.0f);     //Bottom Left Of The Quad (Front)
-        glVertex3f(1.0f, -1.0f, 1.0f);      //Bottom Right Of The Quad (Front)
-
-        glColor3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(1.0f, -1.0f, -1.0f);     //Bottom Left Of The Quad (Back)
-        glVertex3f(-1.0f, -1.0f, -1.0f);    //Bottom Right Of The Quad (Back)
-        glVertex3f(-1.0f, 1.0f, -1.0f);     //Top Right Of The Quad (Back)
-        glVertex3f(1.0f, 1.0f, -1.0f);      //Top Left Of The Quad (Back)
-
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex3f(-1.0f, 1.0f, 1.0f);      //Top Right Of The Quad (Left)
-        glVertex3f(-1.0f, 1.0f, -1.0f);     //Top Left Of The Quad (Left)
-        glVertex3f(-1.0f, -1.0f, -1.0f);    //Bottom Left Of The Quad (Left)
-        glVertex3f(-1.0f, -1.0f, 1.0f);     //Bottom Right Of The Quad (Left)
-
-        glColor3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);      //Top Right Of The Quad (Right)
-        glVertex3f(1.0f, 1.0f, 1.0f);       //Top Left Of The Quad (Right)
-        glVertex3f(1.0f, -1.0f, 1.0f);      //Bottom Left Of The Quad (Right)
-        glVertex3f(1.0f, -1.0f, -1.0f);     //Bottom Right Of The Quad (Right)
-        glEnd();
     }
 
 }
