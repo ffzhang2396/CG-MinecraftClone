@@ -10,7 +10,7 @@ package finalproject;
 * class: CS 445 – Computer Graphics
 *
 * assignment: Final Program
-* date last modified: 11/15/2017
+* date last modified: 11/17/2017
 *
 * purpose: This program uses the LWJGL library to create a window of 
 *          size 640x480. Within this window, we were required to create 
@@ -20,6 +20,8 @@ package finalproject;
 *
 ****************************************************************/ 
 
+import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
@@ -28,6 +30,8 @@ import org.lwjgl.util.glu.GLU;
 public class FinalProject {
     private CameraController camera;
     private DisplayMode displayMode;
+    private FloatBuffer lightPosition;
+    private FloatBuffer whiteLight;
 
     //method: start
     //purpose: Creates and initializes the window and the camera. The render 
@@ -36,7 +40,7 @@ public class FinalProject {
         try {
             createWindow();
             initGL();
-            camera = new CameraController(0, 0, 0);
+            camera = new CameraController(-60, 0, 0);
             camera.loop();
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,6 +84,27 @@ public class FinalProject {
         glEnableClientState(GL_COLOR_ARRAY);
         glEnable(GL_TEXTURE_2D);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        
+        initLightArrays();
+        glLight(GL_LIGHT0, GL_POSITION, lightPosition); //sets our light’s position
+        glLight(GL_LIGHT0, GL_SPECULAR, whiteLight);//sets our specular light
+        glLight(GL_LIGHT0, GL_DIFFUSE, whiteLight);//sets our diffuse light
+        glLight(GL_LIGHT0, GL_AMBIENT, whiteLight);//sets our ambient light
+        glEnable(GL_LIGHTING);//enables our lighting
+        glEnable(GL_LIGHT0);//enables light0    
+
+        
+    }
+    
+    //method: initLightArrays
+    //purpose: initializes the position of the light source and the 
+    //         white light which depicts the original color of the terrain
+    private void initLightArrays(){
+        lightPosition = BufferUtils.createFloatBuffer(4);
+        lightPosition.put(0.0f).put(0.0f).put(0.0f).put(1.0f).flip();
+        
+        whiteLight = BufferUtils.createFloatBuffer(4);
+        whiteLight.put(1.0f).put(1.0f).put(1.0f).put(0.0f).flip();
     }
 
     //method: main

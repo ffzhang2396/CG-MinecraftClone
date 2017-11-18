@@ -10,7 +10,7 @@ package finalproject;
 * class: CS 445 – Computer Graphics
 *
 * assignment: Final Program
-* date last modified: 11/15/2017
+* date last modified: 11/17/2017
 *
 * purpose: The Block class is used to create 6 different types of 
 *          blocks and determines whether each block is active.
@@ -18,7 +18,6 @@ package finalproject;
 *          vertex buffer object.
 *
 ****************************************************************/ 
-
 
 public class Block {
     private boolean isActive;
@@ -53,10 +52,10 @@ public class Block {
             this.blockID = i;
         }
 
-        //method: getRandom
-        //purpose: to return a random block-type
-        public static BlockType getRandom() {
-            return values()[(int) (Math.random() * values().length)];
+        //method: getRandomMidLayer
+        //purpose: Returns either dirt or stone block types        
+        public static BlockType getRandomMidLayer(){
+            return values()[3 + (int)(Math.random() * 2)];
         }
     }
 
