@@ -1,65 +1,96 @@
 package finalproject;
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3f;
+/***************************************************************
+* file: Block.java
+* authors: Kristin Adachi
+*          Je'Don Roc Carter
+*          Calvin Teng
+*          Felix Zhang
+*          Oscar Zhang
+* class: CS 445 – Computer Graphics
+*
+* assignment: Final Program
+* date last modified: 11/17/2017
+*
+* purpose: The Block class is used to create 6 different types of 
+*          blocks and determines whether each block is active.
+*          Coordinates for each block are stored inside a separate
+*          vertex buffer object.
+*
+****************************************************************/ 
 
-/**
- * Block class known as a 'voxel' in Minecraft (3d cube pixel)
- */
 public class Block {
+    private boolean isActive;
+    private BlockType type;
+    private float x, y, z;
 
-//    private boolean isActive;
-//    private BlockType type;
-//    private float x, y, z;
+    public enum BlockType {
+        BlockType_Grass(0),
+        BlockType_Sand(1),
+        BlockType_Water(2),
+        BlockType_Dirt(3),
+        BlockType_Stone(4),
+        BlockType_Bedrock(5);
 
-    public Block() {
+        private int blockID;
+        
+        //method: BlockType
+        //purpose: BlockType constructor.
+        BlockType(int i) {
+            this.blockID = i;
+        }
+
+        //method: getID
+        //purpose: To retrieve ID of block's block-type.
+        public int getID() {
+            return this.blockID;
+        }
+
+        //method: setID
+        //purpose: To set the ID of the block's block-type.
+        public void setID(int i) {
+            this.blockID = i;
+        }
+
+        //method: getRandomMidLayer
+        //purpose: Returns either dirt or stone block types        
+        public static BlockType getRandomMidLayer(){
+            return values()[3 + (int)(Math.random() * 2)];
+        }
     }
 
-    /**
-     * Renders a block to the display in a counter-clockwise fashion.
-     */
-    protected void drawBlock() {
-        glBegin(GL_QUADS);
+    //method: Block
+    //purpose: Block constructor.
+    public Block(BlockType type) {
+        this.type = type;
+    }
 
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);          // Top Right Of The Quad (Top)
-        glVertex3f(-1.0f, 1.0f, -1.0f);          // Top Left Of The Quad (Top)
-        glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
-        glVertex3f(1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
+    //method: setCoords
+    //purpose: Sets the block's coordinates to the specified coordinate 
+    //         values.
+    public void setCoords(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
-        glVertex3f(-1.0f, -1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
-        glVertex3f(-1.0f, -1.0f, -1.0f);          // Bottom Left Of The Quad (Bottom)
-        glVertex3f(1.0f, -1.0f, -1.0f);          // Bottom Right Of The Quad (Bottom)
+    //method: isActive
+    //purpose: Determines if the block is active. Returns true if it is 
+    //         and false otherwise.
+    public boolean isActive() {
+        return this.isActive;
+    }
 
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
-        glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
-        glVertex3f(-1.0f, -1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
-        glVertex3f(1.0f, -1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
+    //method: setActive
+    //purpose: Sets the block's status to active.
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 
-        glColor3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(1.0f, -1.0f, -1.0f);          // Bottom Left Of The Quad (Back)
-        glVertex3f(-1.0f, -1.0f, -1.0f);          // Bottom Right Of The Quad (Back)
-        glVertex3f(-1.0f, 1.0f, -1.0f);          // Top Right Of The Quad (Back)
-        glVertex3f(1.0f, 1.0f, -1.0f);          // Top Left Of The Quad (Back)
-
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
-        glVertex3f(-1.0f, 1.0f, -1.0f);          // Top Left Of The Quad (Left)
-        glVertex3f(-1.0f, -1.0f, -1.0f);          // Bottom Left Of The Quad (Left)
-        glVertex3f(-1.0f, -1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
-
-        glColor3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, -1.0f);          // Top Right Of The Quad (Right)
-        glVertex3f(1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
-        glVertex3f(1.0f, -1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
-        glVertex3f(1.0f, -1.0f, -1.0f);          // Bottom Right Of The Quad (Right)
-        glEnd();
+    //method: getID
+    //purpose: Returns the block's ID.
+    public int getID() {
+        return this.type.getID();
     }
 
 }

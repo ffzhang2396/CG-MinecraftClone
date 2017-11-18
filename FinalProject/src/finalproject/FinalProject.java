@@ -1,34 +1,55 @@
 package finalproject;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+/***************************************************************
+* file: FinalProject.java
+* authors: Kristin Adachi
+*          Je'Don Roc Carter
+*          Calvin Teng
+*          Felix Zhang
+*          Oscar Zhang
+* class: CS 445 – Computer Graphics
+*
+* assignment: Final Program
+* date last modified: 11/17/2017
+*
+* purpose: This program uses the LWJGL library to create a window of 
+*          size 640x480. Within this window, we were required to create 
+*          a small 3D world similar to that of the popular game Minecraft. 
+*          We needed to implement a camera as well as render the 3D world 
+*          itself by using OpenGL.
+*
+****************************************************************/ 
+
+import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
 
 public class FinalProject {
-
-    private CameraController camera = new CameraController(0, 0, 0);
+    private CameraController camera;
     private DisplayMode displayMode;
+    private FloatBuffer lightPosition;
+    private FloatBuffer whiteLight;
 
-    /**
-     * Method used to start program.
-     */
+    //method: start
+    //purpose: Creates and initializes the window and the camera. The render 
+    //         method is called within the camera's loop method.
     public void start() {
         try {
             createWindow();
             initGL();
-            loop(); //render() is inside gameLoop()
+            camera = new CameraController(-60, 0, 0);
+            camera.loop();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Method creates a window of size 640x480
-     *
-     * @throws Exception, LWJGLException
-     */
+    //method: createWindow
+    //purpose: Creates the window with initial size 640x480 along with the 
+    //         specified title.
     private void createWindow() throws Exception {
         Display.setFullscreen(false);
         DisplayMode d[] = Display.getAvailableDisplayModes();
@@ -43,13 +64,13 @@ public class FinalProject {
         Display.create();
     }
 
-    /**
-     * Method specifies the canvas background color, uses projection to view the
-     * scene, loads the identity matrix, and sets up an orthographic matrix with
-     * the origin at the center of the window.
-     */
+    //method: initGL
+    //purpose: Initializes OpenGL with specific values. It specifies the 
+    //         canvas background color, uses projection to view the scene, 
+    //         loads the identity matrix, and sets up an orthographic matrix 
+    //         with the origin at the center of the window.
     private void initGL() {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.5f, 0.8f, .97f, 0f);
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -58,59 +79,36 @@ public class FinalProject {
 
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        glEnable(GL_DEPTH_TEST); // so planes do not overlap when looking at them
+        glEnable(GL_DEPTH_TEST);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        
+        initLightArrays();
+        glLight(GL_LIGHT0, GL_POSITION, lightPosition); //sets our light’s position
+        glLight(GL_LIGHT0, GL_SPECULAR, whiteLight);//sets our specular light
+        glLight(GL_LIGHT0, GL_DIFFUSE, whiteLight);//sets our diffuse light
+        glLight(GL_LIGHT0, GL_AMBIENT, whiteLight);//sets our ambient light
+        glEnable(GL_LIGHTING);//enables our lighting
+        glEnable(GL_LIGHT0);//enables light0    
+
+        
+    }
+    
+    //method: initLightArrays
+    //purpose: initializes the position of the light source and the 
+    //         white light which depicts the original color of the terrain
+    private void initLightArrays(){
+        lightPosition = BufferUtils.createFloatBuffer(4);
+        lightPosition.put(0.0f).put(0.0f).put(0.0f).put(1.0f).flip();
+        
+        whiteLight = BufferUtils.createFloatBuffer(4);
+        whiteLight.put(1.0f).put(1.0f).put(1.0f).put(0.0f).flip();
     }
 
-    private void render() {
-        try {
-            Block b = new Block();
-            b.drawBlock();
-        } catch (Exception e) {
-        }
-    }
-
-    public void loop() {
-        float dx, dy;
-        float mouseSens = 0.09f;
-        float movementSpeed = .35f;
-        Mouse.setGrabbed(true); // hides mouse
-
-        while (!Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) && !Display.isCloseRequested()) {
-            dx = Mouse.getDX();
-            dy = Mouse.getDY();
-            // control camera movement from mouse
-            camera.yaw(dx * mouseSens);
-            camera.pitch(dy * mouseSens);
-            if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-                camera.walkForward(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-                camera.walkBackwards(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-                camera.strafeLeft(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-                camera.strafeRight(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                camera.moveUp(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                camera.moveDown(movementSpeed);
-            }
-            glLoadIdentity();
-            camera.lookThrough();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            render();
-
-            Display.update();
-            Display.sync(60);
-        }
-        Display.destroy();
-    }
-
+    //method: main
+    //purpose: Creates a FinalProject object and starts the program.
     public static void main(String[] args) {
         FinalProject test = new FinalProject();
         test.start();
