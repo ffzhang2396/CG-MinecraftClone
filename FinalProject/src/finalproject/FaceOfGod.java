@@ -1,23 +1,22 @@
 package finalproject;
 
 /***************************************************************
- * file: Block.java
- * authors: Kristin Adachi
- *          Je'Don Roc Carter
- *          Calvin Teng
- *           Felix Zhang
- *          Oscar Zhang
- * class: CS 445 – Computer Graphics
- *
- * assignment: Final Program
- * date last modified: 11/28/2017
- *
- * purpose: The Chunk class essentially creates a chunk of textured blocks and
- * represents the world in our game. The world is 30x30 cubes large and each
- * cube is textured and randomly placed using simplex noise classes.
- *
- **************************************************************/
-
+* file: FinalProject.java
+* authors: Kristin Adachi
+*          Je'Don Roc Carter
+*          Calvin Teng
+*          Felix Zhang
+*          Oscar Zhang
+* class: CS 445 – Computer Graphics
+*
+* assignment: Final Program
+* date last modified: 11/28/2017
+* 
+* purpose: Creates an additional feature to our project that displays a wall
+*  of the FaceOfGod.
+*
+*************************************************************
+*/
 import java.nio.FloatBuffer;
 import java.util.Random;
 import org.lwjgl.BufferUtils;
@@ -27,9 +26,8 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-public class Chunk {
+public class FaceOfGod {
 
-    static final int CHUNK_SIZE = 30;
     static final int CUBE_LENGTH = 2;
     private Block[][][] blocks;
     private int startX, startY, startZ;
@@ -38,19 +36,18 @@ public class Chunk {
     private int vboColorHandle;
     private int vboTextureHandle;
     private Texture texture;
-    private Random r;
 
-    //method: Chunk
-    //purpose: Chunk constructor. Loads the textures and
-    //calls the rebuildMesh method to draw the world.
-    public Chunk(int startX, int startY, int startZ) {
+    //method: FaceOfGod
+    //purpose: FaceOfGod constructor. Loads the textures and assigns block 
+    //         types to each block. It also calls the rebuildMesh method 
+    //         to draw the world.
+    public FaceOfGod(int startX, int startY, int startZ) {
         try {
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
         } catch (Exception e) {
             System.out.print("e-REEEEEEEEEEEEEEEEEEEEEE-r!");
         }
-        r = new Random();
-        blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+        blocks = new Block[30][15][1];
         this.vboColorHandle = glGenBuffers();
         this.vboVertexHandle = glGenBuffers();
         this.vboTextureHandle = glGenBuffers();
@@ -61,9 +58,8 @@ public class Chunk {
     }
 
     //method: render
-    //purpose: Renders the chunk.
+    //purpose: Renders the FaceOfGod.
     public void render() {
-        glPushMatrix();
         glPushMatrix();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);
@@ -72,41 +68,25 @@ public class Chunk {
         glBindBuffer(GL_ARRAY_BUFFER, vboTextureHandle);
         glBindTexture(GL_TEXTURE_2D, 1);
         glTexCoordPointer(2, GL_FLOAT, 0, 0L);
-        glDrawArrays(GL_QUADS, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 24);
+        glDrawArrays(GL_QUADS, 0, 30 * 1 * 15 * 24);
         glPopMatrix();
     }
 
     //method: rebuildMesh
-    //purpose: Method responsible for generating the terrain using simplex 
-    //         noise classes. It also draws the chunk, creating our world.
+    //purpose: Method responsible for generating the FaceOfGod using.
     public void rebuildMesh(float startX, float startY, float startZ) {
-        //if persistence was less than 0.06, the chunk was almost flat
-        //if it was greater than 0.1, valleys and mountains were too steep
-        float persistence = 0f;
-        while (persistence < 0.06f) {
-            persistence = (0.1f) * r.nextFloat();
-        }
-        int seed = r.nextInt(50) + 1;
-        System.out.println(persistence);
-        System.out.println(seed);
+        FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((30 * 1 * 15) * 6 * 12);
+        FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((30 * 1 * 15) * 6 * 12);
+        FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((30 * 1 * 15) * 6 * 12);
 
-        SimplexNoise noise = new SimplexNoise(CHUNK_SIZE, persistence, seed);
-        FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
-        FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
-        FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
-
-        for (float x = 0; x < CHUNK_SIZE; x++) {
-            for (float z = 0; z < CHUNK_SIZE; z++) {
-                for (float y = 0; y < CHUNK_SIZE; y++) {
+        for (float x = 0; x < 30; x++) {
+            for (float z = 0; z < 1; z++) {
+                for (float y = 0; y < 15; y++) {
                     //height created using simplex noise
-                    int height = (int) (startY + (int) (CHUNK_SIZE * noise.getNoise((int) x, (int) y, (int) z)) * CUBE_LENGTH);
-                    if (y >= height) {
-                        break;
-                    }
                     determineBlockType((int) x, (int) y, (int) z);
                     VertexPositionData.put(createCube(
                             (float) (startX + x * CUBE_LENGTH + 10),
-                            (float) (y * CUBE_LENGTH + (int) (CHUNK_SIZE * 0.8) - 60),
+                            (float) (startY + y * CUBE_LENGTH + 10),
                             (float) (startZ + z * CUBE_LENGTH) + 10)
                     );
                     VertexColorData.put(createCubeVertexCol(getCubeColor()));
@@ -129,30 +109,9 @@ public class Chunk {
     }
 
     //method: determineBlockType
-    //purpose: Differentiates the block types of each layer with bedrock
-    //         at the bottom-most layer and with grass, water, or sand at
-    //         the surface. In the center are dirt and stone blocks.
-    //         The height is determined by the 'y' value of the block
+    //purpose: returns a default block type to avoid null block
     private void determineBlockType(int x, int y, int z) {
-        if (y == 0) {
-            //bedrock is the bottom-most layer
-            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Bedrock);
-        } else if (y >= 6) {
-            // creates grass on top layer, usually hills are grass blocks
-            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
-        } else if (y < 6 && y >= 3) {
-            // creates water on outer layer, usually in a crater
-            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Water);
-            // makes edges of terrain be stone/dirt
-            if ((x == 0 || x == CHUNK_SIZE - 1) || (z == 0 || z == CHUNK_SIZE - 1))
-                blocks[x][y][z] = new Block(Block.BlockType.getRandomMidLayer());
-        } else {
-            //fills the middle layer with stone/dirt
-            blocks[x][y][z] = new Block(Block.BlockType.getRandomMidLayer());
-        }
-        // chooses random spot on of top terrain to be sand
-        if (((y == 7) && (x > (5 + Math.random() * 10)) && x < (11 + Math.random() * 15)) && (z > (5 + Math.random() * 10) && z < (11 + Math.random() * 15))) 
-            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Sand);
+        blocks[x][y][z] = new Block(Block.BlockType.BlockType_Default);
     }
 
     //method: createCubeVertexCol
@@ -207,63 +166,10 @@ public class Chunk {
     }
 
     //method: createTexCube
-    //purpose: Assigns textures from "terrain.png" to each side of the block. 
-    //         The texture sheet is read from 0.0 - 1.0, indicating the need 
-    //         for an offset. The origin on the texture sheet is located at 
-    //         the top left corner (0px, 0px).
+    //purpose: creates tex-cube for FaceOfGod.
     public static float[] createTexCube(float x, float y, Block block) {
         float offset = (1024f / 16) / 1024f;
-        switch (block.getID()) {
-            //grass block type
-            case 0:
-                return new float[]{
-                    // BOTTOM QUAD(DOWN=+Y)
-                    x + offset * 3, y + offset * 10,
-                    x + offset * 2, y + offset * 10,
-                    x + offset * 2, y + offset * 9,
-                    x + offset * 3, y + offset * 9,
-                    // TOP!
-                    x + offset * 3, y + offset * 1,
-                    x + offset * 2, y + offset * 1,
-                    x + offset * 2, y + offset * 0,
-                    x + offset * 3, y + offset * 0,
-                    // FRONT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 4, y + offset * 0,
-                    x + offset * 4, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // BACK QUAD
-                    x + offset * 4, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 4, y + offset * 0,
-                    // LEFT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 4, y + offset * 0,
-                    x + offset * 4, y + offset * 1,
-                    x + offset * 3, y + offset * 1,
-                    // RIGHT QUAD
-                    x + offset * 3, y + offset * 0,
-                    x + offset * 4, y + offset * 0,
-                    x + offset * 4, y + offset * 1,
-                    x + offset * 3, y + offset * 1};
-            //sand block type
-            case 1:
-                return getTexCubeCoord(x, y, offset, 3, 2, 2, 1);
-            //water block type
-            case 2:
-                return getTexCubeCoord(x, y, offset, 16, 15, 12, 13);
-            //dirt block type
-            case 3:
-                return getTexCubeCoord(x, y, offset, 3, 2, 0, 1);
-            //stone block type
-            case 4:
-                return getTexCubeCoord(x, y, offset, 2, 1, 0, 1);
-            //bedrock block type
-            case 5:
-                return getTexCubeCoord(x, y, offset, 2, 1, 1, 2);
-        }
-        return null;
+        return getTexCubeCoord(x, y, offset, 1, 0, 1, 0);
     }
 
     //method: getTexCubeCoord

@@ -10,7 +10,7 @@ package finalproject;
 * class: CS 445 – Computer Graphics
 *
 * assignment: Final Program
-* date last modified: 11/28/2017
+* date last modified: 11/17/2017
 *
 * purpose: This program uses the LWJGL library to create a window of 
 *          size 640x480. Within this window, we were required to create 
@@ -52,6 +52,13 @@ public class FinalProject {
     //         specified title.
     private void createWindow() throws Exception {
         Display.setFullscreen(false);
+//        DisplayMode d[] = Display.getAvailableDisplayModes();
+//        for (int i = 0; i < d.length; i++) {
+//            if (d[i].getWidth() == 640 && d[i].getHeight() == 480 && d[i].getBitsPerPixel() == 32) {
+//                displayMode = d[i];
+//                break;
+//            }
+//        }
         displayMode = new DisplayMode(640, 480);
         Display.setDisplayMode(displayMode);
         Display.setTitle("Final Project");

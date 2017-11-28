@@ -10,7 +10,7 @@ package finalproject;
 * class: CS 445 – Computer Graphics
 *
 * assignment: Final Program
-* date last modified: 11/17/2017
+* date last modified: 11/28/2017
  *
  * purpose: The CameraController class represents our first-person camera for
  * our world. This class handles the movements of the camera in accordance to
@@ -32,6 +32,7 @@ public class CameraController {
     private float yaw = 0.0f;            //Rotation around y axis of camera
     private float pitch = 0.0f;          //Rotations around x axis of camera
     private Chunk chunk;
+    private FaceOfGod diaz;
     private boolean firstRender;
     private Vector3f me;
 
@@ -174,8 +175,10 @@ public class CameraController {
                 //For the first render, the chunk is generated
                 if (firstRender) {
                     chunk = new Chunk(0, 8, -60);
+                    diaz = new FaceOfGod(0, -20, -65);
                     firstRender = false;
                 }
+                diaz.render();
                 chunk.render();
             } catch (Exception e) {
                 e.printStackTrace();
