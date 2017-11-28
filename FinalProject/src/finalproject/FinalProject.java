@@ -26,17 +26,31 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
+import  java.io.*;
+import javazoom.jl.player.*;
 
 public class FinalProject {
     private CameraController camera;
     private DisplayMode displayMode;
     private FloatBuffer lightPosition;
     private FloatBuffer whiteLight;
+    File file;
 
     //method: start
     //purpose: Creates and initializes the window and the camera. The render 
     //         method is called within the camera's loop method.
     public void start() {
+        new Thread() {
+
+        @Override
+        public void run() {
+            //As your stream implements Closeable, it is better to use a "try-with-resources"
+            try(FileInputStream fis = new FileInputStream("C:\\Users\\Je'Don Carter\\Documents\\NetBeansProjects\\FinalProject\\src\\finalproject\\ERA-Ameno.mp3")){
+              new Player(fis).play();
+            }catch(Exception e){System.out.println(e);}
+          }
+        }.start();
+        
         try {
             createWindow();
             initGL();
@@ -47,6 +61,7 @@ public class FinalProject {
         }
     }
 
+    
     //method: createWindow
     //purpose: Creates the window with initial size 640x480 along with the 
     //         specified title.
