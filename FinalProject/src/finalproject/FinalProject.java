@@ -45,7 +45,7 @@ public class FinalProject {
         @Override
         public void run() {
             //As your stream implements Closeable, it is better to use a "try-with-resources"
-            try(FileInputStream fis = new FileInputStream("C:\\Users\\Je'Don Carter\\Documents\\NetBeansProjects\\FinalProject\\src\\finalproject\\ERA-Ameno.mp3")){
+            try(FileInputStream fis = new FileInputStream("./ERA-Ameno.mp3")){
               new Player(fis).play();
             }catch(Exception e){System.out.println(e);}
           }
@@ -68,13 +68,6 @@ public class FinalProject {
     //         specified title.
     private void createWindow() throws Exception {
         Display.setFullscreen(false);
-//        DisplayMode d[] = Display.getAvailableDisplayModes();
-//        for (int i = 0; i < d.length; i++) {
-//            if (d[i].getWidth() == 640 && d[i].getHeight() == 480 && d[i].getBitsPerPixel() == 32) {
-//                displayMode = d[i];
-//                break;
-//            }
-//        }
         displayMode = new DisplayMode(640, 480);
         Display.setDisplayMode(displayMode);
         Display.setTitle("Final Project");
