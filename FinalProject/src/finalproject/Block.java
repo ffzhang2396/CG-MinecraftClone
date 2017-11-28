@@ -30,7 +30,9 @@ public class Block {
         BlockType_Water(2),
         BlockType_Dirt(3),
         BlockType_Stone(4),
-        BlockType_Bedrock(5);
+        BlockType_Bedrock(5),
+        BlockType_Stick(6),
+        BlockType_Diaz(7);
 
         private int blockID;
         

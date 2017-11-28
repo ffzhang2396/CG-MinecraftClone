@@ -18,6 +18,7 @@ package finalproject;
  *
  **************************************************************/
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.Random;
 import org.lwjgl.BufferUtils;
@@ -31,6 +32,7 @@ public class Chunk {
 
     static final int CHUNK_SIZE = 30;
     static final int CUBE_LENGTH = 2;
+    static int stickAmount = 0;
     private Block[][][] blocks;
     private int startX, startY, startZ;
 
@@ -45,7 +47,7 @@ public class Chunk {
     //purpose: Chunk constructor. Loads the textures and assigns block 
     //         types to each block. It also calls the rebuildMesh method 
     //         to draw the world.
-    public Chunk(int startX, int startY, int startZ) {
+    public Chunk(int startX, int startY, int startZ) throws IOException {
         try {
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
         } catch (Exception e) {
@@ -74,7 +76,6 @@ public class Chunk {
     //purpose: Renders the chunk.
     public void render() {
         glPushMatrix();
-        glPushMatrix();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);
         glBindBuffer(GL_ARRAY_BUFFER, vboColorHandle);
@@ -89,7 +90,7 @@ public class Chunk {
     //method: rebuildMesh
     //purpose: Method responsible for generating the terrain using simplex 
     //         noise classes. It also draws the chunk, creating our world.
-    public void rebuildMesh(float startX, float startY, float startZ) {
+    public void rebuildMesh(float startX, float startY, float startZ) throws IOException {
         //if persistence was less than 0.06, the chunk was almost flat
         //if it was greater than 0.1, valleys and mountains were too steep
         float persistence = 0f;
@@ -143,13 +144,17 @@ public class Chunk {
     //         at the bottom-most layer and with grass, water, or sand at
     //         the surface. In the center are dirt and stone blocks.
     //         The height is determined by the 'y' value of the block
-    private void determineBlockType(int x, int y, int z) {
+    private void determineBlockType(int x, int y, int z) throws IOException {
         if (y == 0) {
             //bedrock is the bottom-most layer
             blocks[x][y][z] = new Block(Block.BlockType.BlockType_Bedrock);
-        } else if (y >= 6) {
+        } else if ((y >= 6) && (stickAmount > 3)) {
             // creates grass on top layer, usually hills are grass blocks
             blocks[x][y][z] = new Block(Block.BlockType.BlockType_Grass);
+        } else if ((y >= 6) && (stickAmount <= 3)) { //CHANGE!!!!
+            // creates grass on top layer, usually hills are stick blocks
+            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Stick);
+            stickAmount = stickAmount + 1;
         } else if (y < 6 && y >= 4) {
             // creates water on outer layer, usually in a crater
             blocks[x][y][z] = new Block(Block.BlockType.BlockType_Water);
@@ -163,6 +168,15 @@ public class Chunk {
         // chooses random spot on of top terrain to be sand
         if (((y == 7) && (x > (5 + Math.random() * 10)) && x < (11 + Math.random() * 15)) && (z > (5 + Math.random() * 10) && z < (11 + Math.random() * 15))) 
             blocks[x][y][z] = new Block(Block.BlockType.BlockType_Sand);
+        /* DIAZ BLOCK
+        if (((y >= 6) && (x > (5 + Math.random() * 10)) && x < (11 + Math.random() * 15)) && (z > (5 + Math.random() * 10) && z < (11 + Math.random() * 15))) { //CHANGE!!!!
+            // creates grass on top layer, usually hills are stick blocks
+            texture = null;
+            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("Diaz.png"));
+            blocks[x][y][z] = new Block(Block.BlockType.BlockType_Diaz);
+            stickAmount = stickAmount + 1;
+        }
+        */
     }
 
     //method: createCubeVertexCol
@@ -272,6 +286,12 @@ public class Chunk {
             //bedrock block type
             case 5:
                 return getTexCubeCoord(x, y, offset, 2, 1, 1, 2);
+            //stick block type
+            case 6:
+                return getTexCubeCoord(x, y, offset, 3, 2, 4, 3);
+            //Diaz block type
+            case 7:
+                return getTexCubeCoord(x, y, offset, 1, 0, 1, 0);
         }
         return null;
     }
