@@ -52,13 +52,14 @@ public class FinalProject {
     //         specified title.
     private void createWindow() throws Exception {
         Display.setFullscreen(false);
-        DisplayMode d[] = Display.getAvailableDisplayModes();
-        for (int i = 0; i < d.length; i++) {
-            if (d[i].getWidth() == 640 && d[i].getHeight() == 480 && d[i].getBitsPerPixel() == 32) {
-                displayMode = d[i];
-                break;
-            }
-        }
+//        DisplayMode d[] = Display.getAvailableDisplayModes();
+//        for (int i = 0; i < d.length; i++) {
+//            if (d[i].getWidth() == 640 && d[i].getHeight() == 480 && d[i].getBitsPerPixel() == 32) {
+//                displayMode = d[i];
+//                break;
+//            }
+//        }
+        displayMode = new DisplayMode(640, 480);
         Display.setDisplayMode(displayMode);
         Display.setTitle("Final Project");
         Display.create();
