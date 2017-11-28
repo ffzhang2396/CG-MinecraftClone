@@ -56,6 +56,7 @@ public class FinalProject {
             initGL();
             camera = new CameraController(-60, 0, 0);
             camera.loop();
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
         }

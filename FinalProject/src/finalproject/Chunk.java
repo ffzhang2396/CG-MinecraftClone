@@ -64,7 +64,6 @@ public class Chunk {
     //purpose: Renders the chunk.
     public void render() {
         glPushMatrix();
-        glPushMatrix();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);
         glBindBuffer(GL_ARRAY_BUFFER, vboColorHandle);
